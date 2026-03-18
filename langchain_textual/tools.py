@@ -2,16 +2,94 @@
 
 from __future__ import annotations
 
+import json
 import os
 from typing import Any, Literal
 
 from langchain_core.callbacks import CallbackManagerForToolRun
 from langchain_core.tools import BaseTool
-from pydantic import Field, SecretStr, model_validator
+from pydantic import BaseModel, Field, SecretStr, model_validator
 from tonic_textual.enums.pii_type import PiiType  # type: ignore[import-untyped]
 from tonic_textual.redact_api import TextualNer  # type: ignore[import-untyped]
 
 from langchain_textual._utilities import initialize_client
+
+_TEXT_TOOL_REDIRECT = (
+    "Use tonic_textual_redact for .txt files (read contents first)."
+)
+_JSON_TOOL_REDIRECT = (
+    "Use tonic_textual_redact_json for .json files (read contents first)."
+)
+_HTML_TOOL_REDIRECT = (
+    "Use tonic_textual_redact_html for .html/.htm files (read contents first)."
+)
+_FILE_TOOL_REDIRECT = (
+    "Use tonic_textual_redact_file for binary files (PDF, JPG, PNG, CSV, TSV)."
+)
+_SUPPORTED_FILE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".pdf", ".csv", ".tsv"}
+
+
+class _RedactTextInput(BaseModel):
+    """Input for the plain text redaction tool."""
+
+    text: str = Field(
+        description=(
+            "Plain text that may contain PII. "
+            "For .txt files, read the file first and pass the contents here."
+        )
+    )
+
+
+class _RedactJsonInput(BaseModel):
+    """Input for the JSON redaction tool."""
+
+    json_str: str = Field(
+        description=(
+            "A JSON string that may contain PII values. "
+            "For .json files, read the file first and pass the contents here."
+        )
+    )
+
+
+class _RedactHtmlInput(BaseModel):
+    """Input for the HTML redaction tool."""
+
+    html_str: str = Field(
+        description=(
+            "An HTML string that may contain PII. "
+            "For .html or .htm files, read the file first and pass the "
+            "contents here."
+        )
+    )
+
+
+class _RedactFileInput(BaseModel):
+    """Input for the file redaction tool."""
+
+    file_path: str = Field(
+        description=(
+            "Absolute path to the file to redact. "
+            "Supported types: JPG, PNG, PDF, CSV, TSV. "
+            "Do NOT use for .txt, .json, .html, or .htm files — use the "
+            "dedicated text, JSON, or HTML redaction tools instead."
+        )
+    )
+    output_path: str | None = Field(
+        default=None,
+        description=(
+            "Path to write the redacted file. "
+            "Defaults to <original_name>_redacted.<ext> in the same directory."
+        ),
+    )
+
+
+class _PiiTypesInput(BaseModel):
+    """Input for the PII types listing tool."""
+
+    query: str = Field(
+        default="",
+        description="Unused. No input is required — pass an empty string.",
+    )
 
 
 class _BaseTonicTextual(BaseTool):
@@ -80,6 +158,7 @@ class TonicTextualRedact(_BaseTonicTextual):
         "For .txt files, read the file contents and pass the text to this tool. "
         "Do NOT use this tool for JSON, HTML, or binary files."
     )
+    args_schema: type[BaseModel] = _RedactTextInput
 
     def _run(
         self,
@@ -95,11 +174,26 @@ class TonicTextualRedact(_BaseTonicTextual):
         Returns:
             The redacted text with PII entities replaced.
         """
+        if not text or not text.strip():
+            return "Error: empty input. Provide plain text containing PII."
+        try:
+            json.loads(text)
+            return (
+                "Error: input looks like JSON, not plain text. "
+                + _JSON_TOOL_REDIRECT
+            )
+        except (json.JSONDecodeError, TypeError):
+            pass
+        if text.strip().startswith(("<html", "<!doctype", "<head", "<body")):
+            return (
+                "Error: input looks like HTML, not plain text. "
+                + _HTML_TOOL_REDIRECT
+            )
         try:
             response = self.client.redact(text, **self._build_kwargs())
             return response.redacted_text
         except Exception as e:
-            return repr(e)
+            return f"Error redacting text: {e}"
 
 
 class TonicTextualRedactJson(_BaseTonicTextual):
@@ -139,6 +233,7 @@ class TonicTextualRedactJson(_BaseTonicTextual):
         "For .json files, read the file contents and pass the JSON string to "
         "this tool. Do NOT use this tool for plain text, HTML, or binary files."
     )
+    args_schema: type[BaseModel] = _RedactJsonInput
 
     def _run(
         self,
@@ -154,11 +249,21 @@ class TonicTextualRedactJson(_BaseTonicTextual):
         Returns:
             The redacted JSON string with PII values replaced.
         """
+        if not json_str or not json_str.strip():
+            return "Error: empty input. Provide a JSON string containing PII."
+        try:
+            json.loads(json_str)
+        except (json.JSONDecodeError, TypeError):
+            return (
+                "Error: input is not valid JSON. "
+                "Provide a valid JSON string. "
+                "If this is plain text, " + _TEXT_TOOL_REDIRECT
+            )
         try:
             response = self.client.redact_json(json_str, **self._build_kwargs())
             return response.redacted_text
         except Exception as e:
-            return repr(e)
+            return f"Error redacting JSON: {e}"
 
 
 class TonicTextualRedactHtml(_BaseTonicTextual):
@@ -199,6 +304,7 @@ class TonicTextualRedactHtml(_BaseTonicTextual):
         "string to this tool. Do NOT use this tool for plain text, JSON, or "
         "binary files."
     )
+    args_schema: type[BaseModel] = _RedactHtmlInput
 
     def _run(
         self,
@@ -214,11 +320,21 @@ class TonicTextualRedactHtml(_BaseTonicTextual):
         Returns:
             The redacted HTML string with PII entities replaced.
         """
+        if not html_str or not html_str.strip():
+            return "Error: empty input. Provide an HTML string containing PII."
+        try:
+            json.loads(html_str)
+            return (
+                "Error: input looks like JSON, not HTML. "
+                + _JSON_TOOL_REDIRECT
+            )
+        except (json.JSONDecodeError, TypeError):
+            pass
         try:
             response = self.client.redact_html(html_str, **self._build_kwargs())
             return response.redacted_text
         except Exception as e:
-            return repr(e)
+            return f"Error redacting HTML: {e}"
 
 
 class TonicTextualRedactFile(_BaseTonicTextual):
@@ -270,6 +386,7 @@ class TonicTextualRedactFile(_BaseTonicTextual):
         "for those, read the file and use the text, JSON, or HTML redaction "
         "tools instead."
     )
+    args_schema: type[BaseModel] = _RedactFileInput
 
     def _run(
         self,
@@ -288,16 +405,44 @@ class TonicTextualRedactFile(_BaseTonicTextual):
         Returns:
             The path to the redacted output file.
         """
+        file_path = os.path.expanduser(file_path)
+        _, ext = os.path.splitext(file_path)
+        ext_lower = ext.lower()
+
+        if ext_lower == ".txt":
+            return (
+                f"Error: {ext} files are not supported by this tool. "
+                + _TEXT_TOOL_REDIRECT
+            )
+        if ext_lower == ".json":
+            return (
+                f"Error: {ext} files are not supported by this tool. "
+                + _JSON_TOOL_REDIRECT
+            )
+        if ext_lower in {".html", ".htm"}:
+            return (
+                f"Error: {ext} files are not supported by this tool. "
+                + _HTML_TOOL_REDIRECT
+            )
+        if ext_lower and ext_lower not in _SUPPORTED_FILE_EXTENSIONS:
+            supported = ", ".join(sorted(_SUPPORTED_FILE_EXTENSIONS))
+            return (
+                f"Error: unsupported file type '{ext}'. "
+                f"Supported extensions: {supported}."
+            )
+
+        if not os.path.exists(file_path):
+            return f"Error: file not found: {file_path}"
+
+        if output_path is None:
+            base, _ = os.path.splitext(file_path)
+            output_path = f"{base}_redacted{ext}"
+        else:
+            output_path = os.path.expanduser(output_path)
+
+        file_name = os.path.basename(file_path)
+
         try:
-            file_path = os.path.expanduser(file_path)
-            if output_path is None:
-                base, ext = os.path.splitext(file_path)
-                output_path = f"{base}_redacted{ext}"
-            else:
-                output_path = os.path.expanduser(output_path)
-
-            file_name = os.path.basename(file_path)
-
             with open(file_path, "rb") as f:
                 job_id = self.client.start_file_redaction(f, file_name)
 
@@ -310,7 +455,7 @@ class TonicTextualRedactFile(_BaseTonicTextual):
 
             return output_path
         except Exception as e:
-            return repr(e)
+            return f"Error redacting file: {e}"
 
 
 class TonicTextualPiiTypes(BaseTool):
@@ -340,6 +485,7 @@ class TonicTextualPiiTypes(BaseTool):
         "generator_config to control per-type redaction behavior. "
         "No input is required."
     )
+    args_schema: type[BaseModel] = _PiiTypesInput
 
     def _run(
         self,
