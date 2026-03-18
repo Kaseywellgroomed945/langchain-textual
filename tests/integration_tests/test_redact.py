@@ -6,19 +6,19 @@ These tests require TONIC_TEXTUAL_API_KEY to be set in the environment.
 import pytest
 
 from langchain_textual import (
-    TonicTextualRedact,
     TonicTextualRedactHtml,
     TonicTextualRedactJson,
+    TonicTextualRedactText,
 )
 
 
 @pytest.fixture
-def tool() -> TonicTextualRedact:
-    """Create a TonicTextualRedact tool instance."""
-    return TonicTextualRedact()
+def tool() -> TonicTextualRedactText:
+    """Create a TonicTextualRedactText tool instance."""
+    return TonicTextualRedactText()
 
 
-def test_redact_basic(tool: TonicTextualRedact) -> None:
+def test_redact_basic(tool: TonicTextualRedactText) -> None:
     """Test basic PII redaction."""
     result = tool.invoke("My name is John Smith and I live in Atlanta, GA.")
     assert isinstance(result, str)
@@ -26,7 +26,7 @@ def test_redact_basic(tool: TonicTextualRedact) -> None:
     assert "Atlanta" not in result
 
 
-def test_redact_no_pii(tool: TonicTextualRedact) -> None:
+def test_redact_no_pii(tool: TonicTextualRedactText) -> None:
     """Test text with no PII passes through."""
     result = tool.invoke("The weather is nice today.")
     assert isinstance(result, str)
@@ -34,7 +34,7 @@ def test_redact_no_pii(tool: TonicTextualRedact) -> None:
 
 def test_redact_with_synthesis() -> None:
     """Test redaction with synthesis mode."""
-    tool = TonicTextualRedact(generator_default="Synthesis")
+    tool = TonicTextualRedactText(generator_default="Synthesis")
     result = tool.invoke("Contact Jane Doe at jane.doe@example.com.")
     assert isinstance(result, str)
     assert "jane.doe@example.com" not in result

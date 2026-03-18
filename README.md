@@ -22,9 +22,9 @@ export TONIC_TEXTUAL_API_KEY="your-api-key"
 ```
 
 ```python
-from langchain_textual import TonicTextualRedact
+from langchain_textual import TonicTextualRedactText
 
-tool = TonicTextualRedact()
+tool = TonicTextualRedactText()
 tool.invoke("My name is John Smith and my email is john@example.com.")
 # "My name is [NAME_GIVEN_xxxx] [NAME_FAMILY_xxxx] and my email is [EMAIL_ADDRESS_xxxx]."
 ```
@@ -33,7 +33,7 @@ tool.invoke("My name is John Smith and my email is john@example.com.")
 
 | Tool | Input | Use for |
 |------|-------|---------|
-| `TonicTextualRedact` | Plain text string | Raw text, `.txt` file contents |
+| `TonicTextualRedactText` | Plain text string | Raw text, `.txt` file contents |
 | `TonicTextualRedactJson` | JSON string | Raw JSON, `.json` file contents |
 | `TonicTextualRedactHtml` | HTML string | Raw HTML, `.html`/`.htm` file contents |
 | `TonicTextualRedactFile` | File path | PDFs, images (JPG, PNG), CSVs, TSVs |
@@ -42,9 +42,9 @@ tool.invoke("My name is John Smith and my email is john@example.com.")
 ### Text
 
 ```python
-from langchain_textual import TonicTextualRedact
+from langchain_textual import TonicTextualRedactText
 
-tool = TonicTextualRedact()
+tool = TonicTextualRedactText()
 tool.invoke("My name is John Smith and my email is john@example.com.")
 # "My name is [NAME_GIVEN_xxxx] [NAME_FAMILY_xxxx] and my email is [EMAIL_ADDRESS_xxxx]."
 ```
@@ -91,7 +91,7 @@ All tools share the same configuration options.
 **Synthesis mode** — replace PII with realistic fake data instead of placeholders:
 
 ```python
-tool = TonicTextualRedact(generator_default="Synthesis")
+tool = TonicTextualRedactText(generator_default="Synthesis")
 tool.invoke("Contact Jane Doe at jane.doe@example.com.")
 # "Contact Maria Chen at maria.chen@gmail.com."
 ```
@@ -99,7 +99,7 @@ tool.invoke("Contact Jane Doe at jane.doe@example.com.")
 **Per-entity control** — set handling per PII type with `generator_config`:
 
 ```python
-tool = TonicTextualRedact(
+tool = TonicTextualRedactText(
     generator_default="Off",
     generator_config={
         "NAME_GIVEN": "Synthesis",
@@ -123,13 +123,13 @@ TonicTextualPiiTypes().invoke("")
 **Self-hosted deployment:**
 
 ```python
-tool = TonicTextualRedact(tonic_textual_base_url="https://textual.your-company.com")
+tool = TonicTextualRedactText(tonic_textual_base_url="https://textual.your-company.com")
 ```
 
 **Explicit API key** (instead of env var):
 
 ```python
-tool = TonicTextualRedact(tonic_textual_api_key="your-api-key")
+tool = TonicTextualRedactText(tonic_textual_api_key="your-api-key")
 ```
 
 ## Using with a LangChain agent
@@ -138,7 +138,7 @@ Every tool in this package is a standard LangChain [tool](https://python.langcha
 
 ```python
 from langchain_textual import (
-    TonicTextualRedact,
+    TonicTextualRedactText,
     TonicTextualRedactJson,
     TonicTextualRedactFile,
 )
@@ -146,7 +146,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
 llm = ChatOpenAI(model="gpt-4o-mini")
-tools = [TonicTextualRedact(), TonicTextualRedactJson(), TonicTextualRedactFile()]
+tools = [TonicTextualRedactText(), TonicTextualRedactJson(), TonicTextualRedactFile()]
 agent = create_react_agent(llm, tools)
 ```
 

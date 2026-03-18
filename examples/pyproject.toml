@@ -1,0 +1,10 @@
+[project]
+name = "langchain-textual-examples"
+version = "0.1.0"
+description = "Example LangChain agent using Tonic Textual for PII redaction"
+requires-python = ">=3.10.0,<4.0.0"
+dependencies = [
+    "langchain-textual",
+    "langchain-openai",
+    "langgraph",
+]

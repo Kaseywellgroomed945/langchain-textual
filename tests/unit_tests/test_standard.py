@@ -6,17 +6,17 @@ from langchain_tests.unit_tests import ToolsUnitTests
 
 from langchain_textual import (
     TonicTextualPiiTypes,
-    TonicTextualRedact,
     TonicTextualRedactFile,
     TonicTextualRedactHtml,
     TonicTextualRedactJson,
+    TonicTextualRedactText,
 )
 
 
-class TestTonicTextualRedactUnit(ToolsUnitTests):
+class TestTonicTextualRedactTextUnit(ToolsUnitTests):
     @property
-    def tool_constructor(self) -> type[TonicTextualRedact]:
-        return TonicTextualRedact
+    def tool_constructor(self) -> type[TonicTextualRedactText]:
+        return TonicTextualRedactText
 
     @property
     def tool_constructor_params(self) -> dict[str, Any]:

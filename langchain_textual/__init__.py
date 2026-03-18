@@ -2,16 +2,16 @@
 
 from langchain_textual.tools import (
     TonicTextualPiiTypes,
-    TonicTextualRedact,
     TonicTextualRedactFile,
     TonicTextualRedactHtml,
     TonicTextualRedactJson,
+    TonicTextualRedactText,
 )
 
 __all__ = [
     "TonicTextualPiiTypes",
-    "TonicTextualRedact",
     "TonicTextualRedactFile",
     "TonicTextualRedactHtml",
     "TonicTextualRedactJson",
+    "TonicTextualRedactText",
 ]

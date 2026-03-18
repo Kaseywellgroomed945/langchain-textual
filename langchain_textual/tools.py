@@ -119,7 +119,7 @@ class _BaseTonicTextual(BaseTool):
         return kwargs
 
 
-class TonicTextualRedact(_BaseTonicTextual):
+class TonicTextualRedactText(_BaseTonicTextual):
     """Redact PII from plain text using Tonic Textual.
 
     Use this tool for raw text strings or when reading the contents of .txt
@@ -139,9 +139,9 @@ class TonicTextualRedact(_BaseTonicTextual):
     Instantiation:
         .. code-block:: python
 
-            from langchain_textual import TonicTextualRedact
+            from langchain_textual import TonicTextualRedactText
 
-            tool = TonicTextualRedact()
+            tool = TonicTextualRedactText()
 
     Invocation:
         .. code-block:: python
@@ -345,7 +345,7 @@ class TonicTextualRedactFile(_BaseTonicTextual):
     redacted file is written to ``output_path``.
 
     Do NOT use this tool for .txt, .json, .html, or .htm files. For those
-    formats, read the file contents and pass them to ``TonicTextualRedact``,
+    formats, read the file contents and pass them to ``TonicTextualRedactText``,
     ``TonicTextualRedactJson``, or ``TonicTextualRedactHtml`` respectively.
 
     Setup:

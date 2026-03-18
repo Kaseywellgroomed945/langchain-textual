@@ -8,16 +8,16 @@ from typing import Any
 from langchain_tests.integration_tests import ToolsIntegrationTests
 
 from langchain_textual import (
-    TonicTextualRedact,
     TonicTextualRedactHtml,
     TonicTextualRedactJson,
+    TonicTextualRedactText,
 )
 
 
-class TestTonicTextualRedactIntegration(ToolsIntegrationTests):
+class TestTonicTextualRedactTextIntegration(ToolsIntegrationTests):
     @property
-    def tool_constructor(self) -> type[TonicTextualRedact]:
-        return TonicTextualRedact
+    def tool_constructor(self) -> type[TonicTextualRedactText]:
+        return TonicTextualRedactText
 
     @property
     def tool_invoke_params_example(self) -> dict[str, Any]:
