@@ -14,9 +14,7 @@ from tonic_textual.redact_api import TextualNer  # type: ignore[import-untyped]
 
 from langchain_textual._utilities import initialize_client
 
-_TEXT_TOOL_REDIRECT = (
-    "Use tonic_textual_redact for .txt files (read contents first)."
-)
+_TEXT_TOOL_REDIRECT = "Use tonic_textual_redact for .txt files (read contents first)."
 _JSON_TOOL_REDIRECT = (
     "Use tonic_textual_redact_json for .json files (read contents first)."
 )
@@ -179,15 +177,13 @@ class TonicTextualRedactText(_BaseTonicTextual):
         try:
             json.loads(text)
             return (
-                "Error: input looks like JSON, not plain text. "
-                + _JSON_TOOL_REDIRECT
+                "Error: input looks like JSON, not plain text. " + _JSON_TOOL_REDIRECT
             )
         except (json.JSONDecodeError, TypeError):
             pass
         if text.strip().startswith(("<html", "<!doctype", "<head", "<body")):
             return (
-                "Error: input looks like HTML, not plain text. "
-                + _HTML_TOOL_REDIRECT
+                "Error: input looks like HTML, not plain text. " + _HTML_TOOL_REDIRECT
             )
         try:
             response = self.client.redact(text, **self._build_kwargs())
@@ -324,10 +320,7 @@ class TonicTextualRedactHtml(_BaseTonicTextual):
             return "Error: empty input. Provide an HTML string containing PII."
         try:
             json.loads(html_str)
-            return (
-                "Error: input looks like JSON, not HTML. "
-                + _JSON_TOOL_REDIRECT
-            )
+            return "Error: input looks like JSON, not HTML. " + _JSON_TOOL_REDIRECT
         except (json.JSONDecodeError, TypeError):
             pass
         try:

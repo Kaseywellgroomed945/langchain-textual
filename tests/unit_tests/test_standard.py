@@ -48,9 +48,7 @@ class TestTonicTextualRedactJsonUnit(ToolsUnitTests):
 
     @property
     def tool_invoke_params_example(self) -> dict[str, Any]:
-        return {
-            "json_str": '{"name": "John Smith", "email": "john@example.com"}'
-        }
+        return {"json_str": '{"name": "John Smith", "email": "john@example.com"}'}
 
     @property
     def init_from_env_params(
@@ -74,9 +72,7 @@ class TestTonicTextualRedactHtmlUnit(ToolsUnitTests):
 
     @property
     def tool_invoke_params_example(self) -> dict[str, Any]:
-        return {
-            "html_str": "<p>Contact John Smith at john@example.com</p>"
-        }
+        return {"html_str": "<p>Contact John Smith at john@example.com</p>"}
 
     @property
     def init_from_env_params(

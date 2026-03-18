@@ -31,9 +31,7 @@ class TestTonicTextualRedactJsonIntegration(ToolsIntegrationTests):
 
     @property
     def tool_invoke_params_example(self) -> dict[str, Any]:
-        return {
-            "json_str": '{"name": "John Smith", "email": "john@example.com"}'
-        }
+        return {"json_str": '{"name": "John Smith", "email": "john@example.com"}'}
 
 
 class TestTonicTextualRedactHtmlIntegration(ToolsIntegrationTests):
@@ -43,6 +41,4 @@ class TestTonicTextualRedactHtmlIntegration(ToolsIntegrationTests):
 
     @property
     def tool_invoke_params_example(self) -> dict[str, Any]:
-        return {
-            "html_str": "<p>Contact John Smith at john@example.com</p>"
-        }
+        return {"html_str": "<p>Contact John Smith at john@example.com</p>"}

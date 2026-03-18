@@ -43,9 +43,7 @@ def test_redact_with_synthesis() -> None:
 def test_redact_json_basic() -> None:
     """Test basic JSON PII redaction."""
     tool = TonicTextualRedactJson()
-    result = tool.invoke(
-        '{"name": "John Smith", "email": "john@example.com"}'
-    )
+    result = tool.invoke('{"name": "John Smith", "email": "john@example.com"}')
     assert isinstance(result, str)
     assert "John Smith" not in result
     assert "john@example.com" not in result
