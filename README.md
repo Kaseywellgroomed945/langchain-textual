@@ -1,12 +1,13 @@
 # langchain-textual
 
 [![PyPI version](https://img.shields.io/pypi/v/langchain-textual)](https://pypi.org/project/langchain-textual/)
+[![CI](https://github.com/TonicAI/langchain-textual/actions/workflows/ci.yml/badge.svg)](https://github.com/TonicAI/langchain-textual/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/TonicAI/langchain-textual/blob/main/LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
 PII redaction tools for LangChain, powered by [Tonic Textual](https://textual.tonic.ai).
 
-Strip names, emails, addresses, and other sensitive data from text before it hits your LLM — or on the way back out. Drop it into any LangChain chain or agent as a standard tool.
+Strip names, emails, addresses, and other sensitive data from text, JSON, HTML, and files before they hit your LLM — or on the way back out. Drop them into any LangChain chain or agent as standard tools.
 
 ## Installation
 
@@ -28,7 +29,63 @@ tool.invoke("My name is John Smith and my email is john@example.com.")
 # "My name is [NAME_GIVEN_xxxx] [NAME_FAMILY_xxxx] and my email is [EMAIL_ADDRESS_xxxx]."
 ```
 
+## Tools
+
+| Tool | Input | Use for |
+|------|-------|---------|
+| `TonicTextualRedact` | Plain text string | Raw text, `.txt` file contents |
+| `TonicTextualRedactJson` | JSON string | Raw JSON, `.json` file contents |
+| `TonicTextualRedactHtml` | HTML string | Raw HTML, `.html`/`.htm` file contents |
+| `TonicTextualRedactFile` | File path | PDFs, images (JPG, PNG), CSVs, TSVs |
+
+### Text
+
+```python
+from langchain_textual import TonicTextualRedact
+
+tool = TonicTextualRedact()
+tool.invoke("My name is John Smith and my email is john@example.com.")
+# "My name is [NAME_GIVEN_xxxx] [NAME_FAMILY_xxxx] and my email is [EMAIL_ADDRESS_xxxx]."
+```
+
+### JSON
+
+```python
+from langchain_textual import TonicTextualRedactJson
+
+tool = TonicTextualRedactJson()
+tool.invoke('{"name": "John Smith", "email": "john@example.com"}')
+# '{"name": "[NAME_GIVEN_xxxx] [NAME_FAMILY_xxxx]", "email": "[EMAIL_ADDRESS_xxxx]"}'
+```
+
+### HTML
+
+```python
+from langchain_textual import TonicTextualRedactHtml
+
+tool = TonicTextualRedactHtml()
+tool.invoke("<p>Contact John Smith at john@example.com</p>")
+# "<p>Contact [NAME_GIVEN_xxxx] [NAME_FAMILY_xxxx] at [EMAIL_ADDRESS_xxxx]</p>"
+```
+
+### Files
+
+```python
+from langchain_textual import TonicTextualRedactFile
+
+tool = TonicTextualRedactFile()
+tool.invoke({"file_path": "/path/to/scan.pdf"})
+# "/path/to/scan_redacted.pdf"
+
+tool.invoke({"file_path": "/path/to/photo.jpg", "output_path": "/tmp/redacted.jpg"})
+# "/tmp/redacted.jpg"
+```
+
+For `.txt`, `.json`, and `.html`/`.htm` files, read the file contents and pass them to the corresponding text, JSON, or HTML tool instead.
+
 ## Configuration
+
+All tools share the same configuration options.
 
 **Synthesis mode** — replace PII with realistic fake data instead of placeholders:
 
@@ -52,15 +109,20 @@ tool = TonicTextualRedact(tonic_textual_api_key="your-api-key")
 
 ## Using with a LangChain agent
 
-`TonicTextualRedact` is a standard LangChain [tool](https://python.langchain.com/docs/concepts/tools/), so it works anywhere tools do:
+Every tool in this package is a standard LangChain [tool](https://python.langchain.com/docs/concepts/tools/), so they work anywhere tools do. Give your agent whichever combination it needs:
 
 ```python
-from langchain_textual import TonicTextualRedact
+from langchain_textual import (
+    TonicTextualRedact,
+    TonicTextualRedactJson,
+    TonicTextualRedactFile,
+)
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
 llm = ChatOpenAI(model="gpt-4o-mini")
-agent = create_react_agent(llm, [TonicTextualRedact()])
+tools = [TonicTextualRedact(), TonicTextualRedactJson(), TonicTextualRedactFile()]
+agent = create_react_agent(llm, tools)
 ```
 
 ## Development
