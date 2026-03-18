@@ -1,6 +1,6 @@
-# langchain-textual
+# langchain-tonic-textual
 
-[![PyPI version](https://img.shields.io/pypi/v/langchain-textual)](https://pypi.org/project/langchain-textual/)
+[![PyPI version](https://img.shields.io/pypi/v/langchain-tonic-textual)](https://pypi.org/project/langchain-tonic-textual/)
 [![CI](https://github.com/tonicai/langchain-tonic-textual/actions/workflows/ci.yml/badge.svg)](https://github.com/tonicai/langchain-tonic-textual/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/tonicai/langchain-tonic-textual/blob/main/LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
@@ -12,7 +12,7 @@ Strip names, emails, addresses, and other sensitive data from text, JSON, HTML, 
 ## Installation
 
 ```bash
-pip install langchain-textual
+pip install langchain-tonic-textual
 ```
 
 ## Quick start

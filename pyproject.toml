@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "langchain-textual"
-version = "0.1.0"
+name = "langchain-tonic-textual"
+version = "0.1.1"
 description = "LangChain integration for Tonic Textual PII redaction"
 license = { text = "MIT" }
 readme = "README.md"
