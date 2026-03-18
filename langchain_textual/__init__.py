@@ -1,6 +1,7 @@
 """LangChain integration for Tonic Textual."""
 
 from langchain_textual.tools import (
+    TonicTextualPiiTypes,
     TonicTextualRedact,
     TonicTextualRedactFile,
     TonicTextualRedactHtml,
@@ -8,6 +9,7 @@ from langchain_textual.tools import (
 )
 
 __all__ = [
+    "TonicTextualPiiTypes",
     "TonicTextualRedact",
     "TonicTextualRedactFile",
     "TonicTextualRedactHtml",

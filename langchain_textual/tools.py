@@ -8,6 +8,7 @@ from typing import Any, Literal
 from langchain_core.callbacks import CallbackManagerForToolRun
 from langchain_core.tools import BaseTool
 from pydantic import Field, SecretStr, model_validator
+from tonic_textual.enums.pii_type import PiiType  # type: ignore[import-untyped]
 from tonic_textual.redact_api import TextualNer  # type: ignore[import-untyped]
 
 from langchain_textual._utilities import initialize_client
@@ -20,12 +21,24 @@ class _BaseTonicTextual(BaseTool):
     tonic_textual_api_key: SecretStr = Field(default=SecretStr(""))
     tonic_textual_base_url: str | None = None
     generator_default: Literal["Off", "Redaction", "Synthesis"] | None = None
+    generator_config: dict[str, Literal["Off", "Redaction", "Synthesis"]] = Field(
+        default_factory=dict
+    )
 
     @model_validator(mode="before")
     @classmethod
     def validate_environment(cls, values: dict) -> Any:
         """Validate the environment and initialize the Textual client."""
         return initialize_client(values)
+
+    def _build_kwargs(self) -> dict[str, Any]:
+        """Build shared keyword arguments for the Textual API call."""
+        kwargs: dict[str, Any] = {}
+        if self.generator_default is not None:
+            kwargs["generator_default"] = self.generator_default
+        if self.generator_config:
+            kwargs["generator_config"] = self.generator_config
+        return kwargs
 
 
 class TonicTextualRedact(_BaseTonicTextual):
@@ -83,10 +96,7 @@ class TonicTextualRedact(_BaseTonicTextual):
             The redacted text with PII entities replaced.
         """
         try:
-            kwargs: dict[str, Any] = {}
-            if self.generator_default is not None:
-                kwargs["generator_default"] = self.generator_default
-            response = self.client.redact(text, **kwargs)
+            response = self.client.redact(text, **self._build_kwargs())
             return response.redacted_text
         except Exception as e:
             return repr(e)
@@ -145,10 +155,7 @@ class TonicTextualRedactJson(_BaseTonicTextual):
             The redacted JSON string with PII values replaced.
         """
         try:
-            kwargs: dict[str, Any] = {}
-            if self.generator_default is not None:
-                kwargs["generator_default"] = self.generator_default
-            response = self.client.redact_json(json_str, **kwargs)
+            response = self.client.redact_json(json_str, **self._build_kwargs())
             return response.redacted_text
         except Exception as e:
             return repr(e)
@@ -208,10 +215,7 @@ class TonicTextualRedactHtml(_BaseTonicTextual):
             The redacted HTML string with PII entities replaced.
         """
         try:
-            kwargs: dict[str, Any] = {}
-            if self.generator_default is not None:
-                kwargs["generator_default"] = self.generator_default
-            response = self.client.redact_html(html_str, **kwargs)
+            response = self.client.redact_html(html_str, **self._build_kwargs())
             return response.redacted_text
         except Exception as e:
             return repr(e)
@@ -297,12 +301,8 @@ class TonicTextualRedactFile(_BaseTonicTextual):
             with open(file_path, "rb") as f:
                 job_id = self.client.start_file_redaction(f, file_name)
 
-            kwargs: dict[str, Any] = {}
-            if self.generator_default is not None:
-                kwargs["generator_default"] = self.generator_default
-
             redacted_bytes = self.client.download_redacted_file(
-                job_id, **kwargs
+                job_id, **self._build_kwargs()
             )
 
             with open(output_path, "wb") as f:
@@ -311,3 +311,48 @@ class TonicTextualRedactFile(_BaseTonicTextual):
             return output_path
         except Exception as e:
             return repr(e)
+
+
+class TonicTextualPiiTypes(BaseTool):
+    """List all PII entity types supported by Tonic Textual.
+
+    Use this tool to discover valid entity type names for use with
+    ``generator_config``. No API key or network access is required.
+
+    Instantiation:
+        .. code-block:: python
+
+            from langchain_textual import TonicTextualPiiTypes
+
+            tool = TonicTextualPiiTypes()
+
+    Invocation:
+        .. code-block:: python
+
+            tool.invoke("")
+    """
+
+    name: str = "tonic_textual_pii_types"
+    description: str = (
+        "Lists all PII entity types supported by Tonic Textual. "
+        "Call this tool to discover valid entity type names (e.g. "
+        "NAME_GIVEN, EMAIL_ADDRESS, CREDIT_CARD) that can be used in "
+        "generator_config to control per-type redaction behavior. "
+        "No input is required."
+    )
+
+    def _run(
+        self,
+        query: str = "",
+        run_manager: CallbackManagerForToolRun | None = None,
+    ) -> str:
+        """Return all supported PII entity types.
+
+        Args:
+            query: Unused. Accepts any value for compatibility with tool calling.
+            run_manager: The run manager for callbacks.
+
+        Returns:
+            A comma-separated list of supported PII entity type names.
+        """
+        return ", ".join(member.value for member in PiiType)

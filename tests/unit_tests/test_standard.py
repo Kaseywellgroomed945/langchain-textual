@@ -5,6 +5,7 @@ from typing import Any
 from langchain_tests.unit_tests import ToolsUnitTests
 
 from langchain_textual import (
+    TonicTextualPiiTypes,
     TonicTextualRedact,
     TonicTextualRedactFile,
     TonicTextualRedactHtml,
@@ -110,3 +111,13 @@ class TestTonicTextualRedactFileUnit(ToolsUnitTests):
             {},
             {"tonic_textual_api_key": "test-api-key"},
         )
+
+
+class TestTonicTextualPiiTypesUnit(ToolsUnitTests):
+    @property
+    def tool_constructor(self) -> type[TonicTextualPiiTypes]:
+        return TonicTextualPiiTypes
+
+    @property
+    def tool_invoke_params_example(self) -> dict[str, Any]:
+        return {"query": ""}

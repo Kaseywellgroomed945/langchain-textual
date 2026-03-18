@@ -3,6 +3,7 @@
 from langchain_textual import __all__
 
 EXPECTED_ALL = [
+    "TonicTextualPiiTypes",
     "TonicTextualRedact",
     "TonicTextualRedactFile",
     "TonicTextualRedactHtml",

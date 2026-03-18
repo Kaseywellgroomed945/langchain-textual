@@ -37,6 +37,7 @@ tool.invoke("My name is John Smith and my email is john@example.com.")
 | `TonicTextualRedactJson` | JSON string | Raw JSON, `.json` file contents |
 | `TonicTextualRedactHtml` | HTML string | Raw HTML, `.html`/`.htm` file contents |
 | `TonicTextualRedactFile` | File path | PDFs, images (JPG, PNG), CSVs, TSVs |
+| `TonicTextualPiiTypes` | None | List all supported PII entity types |
 
 ### Text
 
@@ -93,6 +94,30 @@ All tools share the same configuration options.
 tool = TonicTextualRedact(generator_default="Synthesis")
 tool.invoke("Contact Jane Doe at jane.doe@example.com.")
 # "Contact Maria Chen at maria.chen@gmail.com."
+```
+
+**Per-entity control** — set handling per PII type with `generator_config`:
+
+```python
+tool = TonicTextualRedact(
+    generator_default="Off",
+    generator_config={
+        "NAME_GIVEN": "Synthesis",
+        "NAME_FAMILY": "Synthesis",
+        "EMAIL_ADDRESS": "Redaction",
+    },
+)
+tool.invoke("Contact Jane Doe at jane.doe@example.com.")
+# "Contact Maria Chen at chen@[EMAIL_ADDRESS_xxxx]."
+```
+
+Use `TonicTextualPiiTypes` to list all supported entity type names:
+
+```python
+from langchain_textual import TonicTextualPiiTypes
+
+TonicTextualPiiTypes().invoke("")
+# "NUMERIC_VALUE, LANGUAGE, MONEY, ..., EMAIL_ADDRESS, NAME_GIVEN, NAME_FAMILY, ..."
 ```
 
 **Self-hosted deployment:**
