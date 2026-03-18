@@ -1,8 +1,8 @@
 # langchain-textual
 
 [![PyPI version](https://img.shields.io/pypi/v/langchain-textual)](https://pypi.org/project/langchain-textual/)
-[![CI](https://github.com/TonicAI/langchain-textual/actions/workflows/ci.yml/badge.svg)](https://github.com/TonicAI/langchain-textual/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/TonicAI/langchain-textual/blob/main/LICENSE)
+[![CI](https://github.com/tonicai/langchain-tonic-textual/actions/workflows/ci.yml/badge.svg)](https://github.com/tonicai/langchain-tonic-textual/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/tonicai/langchain-tonic-textual/blob/main/LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
 PII redaction tools for LangChain, powered by [Tonic Textual](https://textual.tonic.ai).
