@@ -166,10 +166,12 @@ make test
 # run integration tests (requires TONIC_TEXTUAL_API_KEY)
 make integration_tests
 
-# lint & format
+# lint & format (run from the project root)
 make lint
 make format
 ```
+
+**Note:** All `make` commands must be run from the project root (`langchain-textual/`), not from subdirectories like `examples/`.
 
 ## License
 
