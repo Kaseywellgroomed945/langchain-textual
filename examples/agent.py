@@ -1,14 +1,16 @@
-"""LangChain agent with Tonic Textual PII redaction tools.
+"""LangChain agent with Tonic Textual PII tools.
 
 This example creates a ReAct agent that can:
-- Redact PII from plain text
-- Redact PII from PDF files
+- Synthesize or tokenize PII in plain text
+- Synthesize or tokenize PII in PDF files
+- Extract PII entities from text
 - List supported PII entity types
 
 Supports OpenAI, Anthropic, and Google Gemini via LiteLLM.
 
 Usage:
     uv run agent.py "Redact: John Smith, john@example.com"
+    uv run agent.py "Extract entities from: John Smith, john@example.com"
     uv run agent.py --model anthropic/claude-sonnet-4-20250514 "Redact sample.pdf"
     uv run agent.py --model gemini/gemini-2.0-flash "What PII types?"
 """
@@ -21,6 +23,7 @@ from langchain_community.chat_models import ChatLiteLLM
 from langgraph.prebuilt import create_react_agent
 
 from langchain_textual import (
+    TonicTextualExtractEntities,
     TonicTextualPiiTypes,
     TonicTextualRedactFile,
     TonicTextualRedactText,
@@ -44,6 +47,7 @@ def main() -> None:
         print(
             '  uv run agent.py "Redact: My name is John Smith, email john@example.com"'
         )
+        print('  uv run agent.py "Extract entities from: John Smith, john@example.com"')
         print(
             "  uv run agent.py --model"
             ' anthropic/claude-sonnet-4-20250514 "Redact sample.pdf"'
@@ -65,6 +69,7 @@ def main() -> None:
     tools = [
         TonicTextualRedactText(),
         TonicTextualRedactFile(),
+        TonicTextualExtractEntities(),
         TonicTextualPiiTypes(),
     ]
     agent = create_react_agent(llm, tools)

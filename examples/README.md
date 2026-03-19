@@ -1,6 +1,6 @@
-# Example: LangChain Agent with PII Redaction
+# Example: LangChain Agent with Tonic Textual
 
-A self-contained example of a LangChain ReAct agent that uses Tonic Textual to redact PII from text and files. Supports OpenAI, Anthropic, and Google Gemini via [LiteLLM](https://docs.litellm.ai/).
+A self-contained example of a LangChain ReAct agent that uses Tonic Textual to synthesize, tokenize, and extract PII from text and files. Supports OpenAI, Anthropic, and Google Gemini via [LiteLLM](https://docs.litellm.ai/).
 
 ## Prerequisites
 
@@ -24,10 +24,16 @@ export GEMINI_API_KEY="your-gemini-key"        # for gemini models
 
 ## Run
 
-Redact PII from text (uses gpt-4o-mini by default):
+Synthesize or tokenize PII in text (uses gpt-4o-mini by default):
 
 ```bash
 uv run agent.py "Redact this: My name is John Smith and my email is john@example.com"
+```
+
+Extract PII entities from text:
+
+```bash
+uv run agent.py "Extract entities from: My name is John Smith and my email is john@example.com"
 ```
 
 Use a different model with `--model`:
@@ -37,7 +43,7 @@ uv run agent.py --model anthropic/claude-sonnet-4-20250514 "Redact this: Call me
 uv run agent.py --model gemini/gemini-2.0-flash "What PII types can you detect?"
 ```
 
-Redact a PDF file (place a PDF in this directory first):
+Process a PDF file (place a PDF in this directory first):
 
 ```bash
 uv run agent.py "Redact the file sample.pdf"
@@ -47,12 +53,13 @@ The `--model` flag accepts any [LiteLLM model string](https://docs.litellm.ai/do
 
 ## What's happening
 
-The agent has access to three tools:
+The agent has access to four tools:
 
 | Tool | Purpose |
 |------|---------|
-| `tonic_textual_redact_text` | Redact PII from plain text |
-| `tonic_textual_redact_file` | Redact PII from files (PDF, JPG, PNG, CSV, TSV) |
+| `tonic_textual_redact_text` | Synthesize or tokenize PII in plain text |
+| `tonic_textual_redact_file` | Synthesize or tokenize PII in files (PDF, JPG, PNG, CSV, TSV) |
+| `tonic_textual_extract_entities` | Extract detected PII entities with type, value, location, and confidence |
 | `tonic_textual_pii_types` | List all supported PII entity types |
 
 The LLM decides which tool to call based on your prompt. You can watch the tool calls and results stream in real time.

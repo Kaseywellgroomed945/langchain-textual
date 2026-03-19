@@ -1,4 +1,4 @@
-"""Tools for Tonic Textual PII redaction."""
+"""Tools for Tonic Textual PII detection, transformation, and entity extraction."""
 
 from __future__ import annotations
 
@@ -78,6 +78,17 @@ class _RedactFileInput(BaseModel):
             "Path to write the redacted file. "
             "Defaults to <original_name>_redacted.<ext> in the same directory."
         ),
+    )
+
+
+class _ExtractEntitiesInput(BaseModel):
+    """Input for the entity extraction tool."""
+
+    text: str = Field(
+        description=(
+            "Plain text to extract PII entities from. "
+            "For .txt files, read the file first and pass the contents here."
+        )
     )
 
 
@@ -449,6 +460,96 @@ class TonicTextualRedactFile(_BaseTonicTextual):
             return output_path
         except Exception as e:
             return f"Error redacting file: {e}"
+
+
+class TonicTextualExtractEntities(_BaseTonicTextual):
+    """Extract PII entities from plain text using Tonic Textual.
+
+    Use this tool to detect and return all PII entities found in text,
+    including their type, value, location, and confidence score. Unlike
+    the redaction tools, this tool does not transform the text — it returns
+    the raw entity detections.
+
+    Setup:
+        Install ``langchain-textual`` and set environment variable
+        ``TONIC_TEXTUAL_API_KEY``.
+
+        .. code-block:: bash
+
+            pip install -U langchain-textual
+            export TONIC_TEXTUAL_API_KEY="your-api-key"
+
+    Instantiation:
+        .. code-block:: python
+
+            from langchain_textual import TonicTextualExtractEntities
+
+            tool = TonicTextualExtractEntities()
+
+    Invocation:
+        .. code-block:: python
+
+            tool.invoke("My name is John Smith and my email is john@example.com.")
+    """
+
+    name: str = "tonic_textual_extract_entities"
+    description: str = (
+        "Extracts personally identifiable information (PII) entities from "
+        "plain text. Input should be plain text that may contain PII such as "
+        "names, addresses, phone numbers, emails, or other sensitive data. "
+        "Output is a JSON array of detected entities, each with label, text, "
+        "start, end, and score fields. This tool detects and reports entities "
+        "without modifying the text. "
+        "For .txt files, read the file contents and pass the text to this tool. "
+        "Do NOT use this tool for JSON, HTML, or binary files."
+    )
+    args_schema: type[BaseModel] = _ExtractEntitiesInput
+
+    def _run(
+        self,
+        text: str,
+        run_manager: CallbackManagerForToolRun | None = None,
+    ) -> str:
+        """Extract PII entities from the provided text.
+
+        Args:
+            text: The plain text to extract entities from.
+            run_manager: The run manager for callbacks.
+
+        Returns:
+            A JSON array of detected entities with label, text, start, end,
+            and score fields.
+        """
+        if not text or not text.strip():
+            return "Error: empty input. Provide plain text to extract entities from."
+        try:
+            json.loads(text)
+            return (
+                "Error: input looks like JSON, not plain text. "
+                "Pass plain text to this tool."
+            )
+        except (json.JSONDecodeError, TypeError):
+            pass
+        if text.strip().startswith(("<html", "<!doctype", "<head", "<body")):
+            return (
+                "Error: input looks like HTML, not plain text. "
+                "Pass plain text to this tool."
+            )
+        try:
+            response = self.client.redact(text, **self._build_kwargs())
+            entities = [
+                {
+                    "label": r.label,
+                    "text": r.text,
+                    "start": r.start,
+                    "end": r.end,
+                    "score": r.score,
+                }
+                for r in response.de_identify_results
+            ]
+            return json.dumps(entities)
+        except Exception as e:
+            return f"Error extracting entities: {e}"
 
 
 class TonicTextualPiiTypes(BaseTool):

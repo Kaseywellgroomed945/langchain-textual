@@ -5,6 +5,7 @@ from typing import Any
 from langchain_tests.unit_tests import ToolsUnitTests
 
 from langchain_textual import (
+    TonicTextualExtractEntities,
     TonicTextualPiiTypes,
     TonicTextualRedactFile,
     TonicTextualRedactHtml,
@@ -25,6 +26,30 @@ class TestTonicTextualRedactTextUnit(ToolsUnitTests):
     @property
     def tool_invoke_params_example(self) -> dict[str, Any]:
         return {"text": "My name is John Smith and I live in Atlanta, GA."}
+
+    @property
+    def init_from_env_params(
+        self,
+    ) -> tuple[dict[str, str], dict[str, Any], dict[str, Any]]:
+        return (
+            {"TONIC_TEXTUAL_API_KEY": "test-api-key"},
+            {},
+            {"tonic_textual_api_key": "test-api-key"},
+        )
+
+
+class TestTonicTextualExtractEntitiesUnit(ToolsUnitTests):
+    @property
+    def tool_constructor(self) -> type[TonicTextualExtractEntities]:
+        return TonicTextualExtractEntities
+
+    @property
+    def tool_constructor_params(self) -> dict[str, Any]:
+        return {"tonic_textual_api_key": "fake-api-key"}
+
+    @property
+    def tool_invoke_params_example(self) -> dict[str, Any]:
+        return {"text": "My name is John Smith and my email is john@example.com."}
 
     @property
     def init_from_env_params(

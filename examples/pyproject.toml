@@ -9,3 +9,6 @@ dependencies = [
     "langchain-community",
     "langgraph",
 ]
+
+[tool.uv.sources]
+langchain-textual = { path = ".." }

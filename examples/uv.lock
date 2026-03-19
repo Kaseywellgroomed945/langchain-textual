@@ -976,15 +976,31 @@ wheels = [
 
 [[package]]
 name = "langchain-textual"
-version = "0.1.1"
-source = { registry = "https://pypi.org/simple" }
+version = "1.0.0"
+source = { directory = "../" }
 dependencies = [
     { name = "langchain-core" },
     { name = "tonic-textual" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9d/54/1569922ec6b2ca1d6c4713deeb4e654128c29a8d3d094d7d874dab74f4f5/langchain_textual-0.1.1.tar.gz", hash = "sha256:3c31dcf512a32a04b869a5bcaa55aa5d55dbf0be8eac6bb724031e60d13c3a28", size = 133075, upload-time = "2026-03-18T14:46:23.663Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/0f/24/cfd306ec2151557688d347a57b583485f63035942a56781729d5524b91ce/langchain_textual-0.1.1-py3-none-any.whl", hash = "sha256:563f43e63c05d6c55387401d5b42ba279a27603b7a1ae62ac1408ceecba53566", size = 8435, upload-time = "2026-03-18T14:46:22.624Z" },
+
+[package.metadata]
+requires-dist = [
+    { name = "langchain-core", specifier = ">=1.0.0,<2.0.0" },
+    { name = "tonic-textual", specifier = ">=3.0.0" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "langchain-core" }]
+lint = [{ name = "ruff", specifier = ">=0.13.1,<0.14.0" }]
+test = [
+    { name = "langchain-core" },
+    { name = "langchain-tests", specifier = "~=1.1.5" },
+    { name = "pytest", specifier = ">=7.3.0,<8.0.0" },
+    { name = "pytest-asyncio", specifier = ">=0.21.1,<1.0.0" },
+]
+typing = [
+    { name = "langchain-core" },
+    { name = "mypy", specifier = ">=1.10.0,<2.0.0" },
 ]
 
 [[package]]
@@ -1001,7 +1017,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "langchain-community" },
-    { name = "langchain-textual" },
+    { name = "langchain-textual", directory = "../" },
     { name = "langgraph" },
     { name = "litellm" },
 ]

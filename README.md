@@ -5,9 +5,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/tonicai/langchain-tonic-textual/blob/main/LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
-PII redaction tools for LangChain, powered by [Tonic Textual](https://textual.tonic.ai).
+PII detection and transformation tools for LangChain, powered by [Tonic Textual](https://textual.tonic.ai).
 
-Strip names, emails, addresses, and other sensitive data from text, JSON, HTML, and files before they hit your LLM — or on the way back out. Drop them into any LangChain chain or agent as standard tools.
+Detect sensitive data in text, JSON, HTML, and files — then synthesize it with realistic fakes, tokenize it with reversible placeholders, or extract the raw entities. Drop them into any LangChain chain or agent as standard tools.
 
 ## Installation
 
@@ -33,10 +33,11 @@ tool.invoke("My name is John Smith and my email is john@example.com.")
 
 | Tool | Input | Use for |
 |------|-------|---------|
-| `TonicTextualRedactText` | Plain text string | Raw text, `.txt` file contents |
-| `TonicTextualRedactJson` | JSON string | Raw JSON, `.json` file contents |
-| `TonicTextualRedactHtml` | HTML string | Raw HTML, `.html`/`.htm` file contents |
-| `TonicTextualRedactFile` | File path | PDFs, images (JPG, PNG), CSVs, TSVs |
+| `TonicTextualRedactText` | Plain text string | Synthesize or tokenize PII in raw text, `.txt` file contents |
+| `TonicTextualRedactJson` | JSON string | Synthesize or tokenize PII in raw JSON, `.json` file contents |
+| `TonicTextualRedactHtml` | HTML string | Synthesize or tokenize PII in raw HTML, `.html`/`.htm` file contents |
+| `TonicTextualRedactFile` | File path | Synthesize or tokenize PII in PDFs, images (JPG, PNG), CSVs, TSVs |
+| `TonicTextualExtractEntities` | Plain text string | Extract detected PII entities with type, value, location, and confidence |
 | `TonicTextualPiiTypes` | None | List all supported PII entity types |
 
 ### Text
@@ -83,6 +84,18 @@ tool.invoke({"file_path": "/path/to/photo.jpg", "output_path": "/tmp/redacted.jp
 ```
 
 For `.txt`, `.json`, and `.html`/`.htm` files, read the file contents and pass them to the corresponding text, JSON, or HTML tool instead.
+
+### Entity extraction
+
+```python
+from langchain_textual import TonicTextualExtractEntities
+
+tool = TonicTextualExtractEntities()
+tool.invoke("My name is John Smith and my email is john@example.com.")
+# '[{"label": "NAME_GIVEN", "text": "John", "start": 11, "end": 15, "score": 0.9}, ...]'
+```
+
+Returns a JSON array of detected entities, each with `label`, `text`, `start`, `end`, and `score` fields.
 
 ## Configuration
 
@@ -141,12 +154,18 @@ from langchain_textual import (
     TonicTextualRedactText,
     TonicTextualRedactJson,
     TonicTextualRedactFile,
+    TonicTextualExtractEntities,
 )
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
 llm = ChatOpenAI(model="gpt-4o-mini")
-tools = [TonicTextualRedactText(), TonicTextualRedactJson(), TonicTextualRedactFile()]
+tools = [
+    TonicTextualRedactText(),
+    TonicTextualRedactJson(),
+    TonicTextualRedactFile(),
+    TonicTextualExtractEntities(),
+]
 agent = create_react_agent(llm, tools)
 ```
 

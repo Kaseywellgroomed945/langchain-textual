@@ -1,4 +1,4 @@
-# Announcing langchain-textual: PII Redaction and Synthesis for LangChain
+# Announcing langchain-textual: PII Detection, Synthesis, and Entity Extraction for LangChain
 
 Every organization building with AI faces the same tension: the data that makes models useful is the same data that regulations say you can't expose. Customer support tickets contain names and account numbers. Clinical notes are full of PHI. Chat logs have emails, phone numbers, and addresses woven through every conversation.
 
@@ -19,7 +19,7 @@ That's what [Tonic Textual](https://tonic.ai/textual) does. And now, with `langc
 
 Tonic Textual is a PII detection and transformation engine. At its core is a named entity recognition (NER) system that identifies 46+ entity types across 50+ languages — names, addresses, phone numbers, emails, SSNs, credit cards, medical record numbers, and more.
 
-What makes it different from basic NER libraries is what happens after detection. Textual offers two modes:
+What makes it different from basic NER libraries is what happens after detection. Textual offers three capabilities:
 
 **Redaction** replaces PII with labeled placeholders:
 
@@ -39,18 +39,32 @@ Output: "Contact Maria Chen at maria.chen@gmail.com"
 
 Synthesized data keeps downstream analytics, model training, and testing valid. A synthesized email address is still a valid email. A synthesized phone number has the right format. A synthesized name is still a plausible name. This matters when you're training models on de-identified data — placeholder tokens like `[NAME_GIVEN_xxxx]` distort the distribution your model learns from, while synthesized replacements preserve it.
 
+**Entity extraction** returns the raw detections — every PII entity found in the text, with its type, value, location, and confidence score:
+
+```
+Input:  "Contact John Smith at john@example.com"
+Output: [
+  {"label": "NAME_GIVEN", "text": "John", "start": 8, "end": 12, "score": 0.9},
+  {"label": "NAME_FAMILY", "text": "Smith", "start": 13, "end": 18, "score": 0.9},
+  {"label": "EMAIL_ADDRESS", "text": "john@example.com", "start": 22, "end": 38, "score": 0.9}
+]
+```
+
+Entity extraction doesn't modify the text at all. It's useful when you need to know *what* PII is present — for auditing, building custom downstream logic, or surfacing entity metadata to an agent so it can reason about the data before deciding how to handle it.
+
 Textual handles all of this across multiple formats: plain text, JSON (with structural awareness of keys vs. values), HTML (preserving markup), PDFs, images (OCR + redaction), and tabular data (CSV, TSV). It runs in the cloud or self-hosted on your infrastructure, with enterprise controls like RBAC, SSO, and audit logging.
 
 ## What langchain-textual Adds
 
-`langchain-textual` wraps Tonic Textual's API into five LangChain tools that any chain or agent can use:
+`langchain-textual` wraps Tonic Textual's API into six LangChain tools that any chain or agent can use:
 
 | Tool | Input | Use for |
 |------|-------|---------|
-| `TonicTextualRedactText` | Plain text string | Raw text, `.txt` file contents |
-| `TonicTextualRedactJson` | JSON string | Raw JSON, `.json` file contents |
-| `TonicTextualRedactHtml` | HTML string | Raw HTML, `.html`/`.htm` file contents |
-| `TonicTextualRedactFile` | File path | PDFs, images (JPG, PNG), CSVs, TSVs |
+| `TonicTextualRedactText` | Plain text string | Synthesize or tokenize PII in raw text, `.txt` file contents |
+| `TonicTextualRedactJson` | JSON string | Synthesize or tokenize PII in raw JSON, `.json` file contents |
+| `TonicTextualRedactHtml` | HTML string | Synthesize or tokenize PII in raw HTML, `.html`/`.htm` file contents |
+| `TonicTextualRedactFile` | File path | Synthesize or tokenize PII in PDFs, images (JPG, PNG), CSVs, TSVs |
+| `TonicTextualExtractEntities` | Plain text string | Extract detected PII entities with type, value, location, and confidence |
 | `TonicTextualPiiTypes` | None | List all 46+ supported PII entity types |
 
 These are standard LangChain `BaseTool` subclasses. You can pass them to any agent, chain, or tool-calling LLM. The installation is one line:
@@ -178,14 +192,15 @@ class TonicTextualPiiTypes(BaseTool):
 
 No API key needed, no network call. This tool exists so an agent (or a developer in a REPL) can discover valid entity type names for use in `generator_config` without having to look up the documentation.
 
-## Walkthrough: Building a PII-Redacting Agent
+## Walkthrough: Building an Agent with PII Tools
 
-Here's a complete example of a LangChain ReAct agent that can redact text and files:
+Here's a complete example of a LangChain ReAct agent that can redact text, extract entities, and process files:
 
 ```python
 from langchain_textual import (
     TonicTextualRedactText,
     TonicTextualRedactFile,
+    TonicTextualExtractEntities,
     TonicTextualPiiTypes,
 )
 from langchain_openai import ChatOpenAI
@@ -195,6 +210,7 @@ llm = ChatOpenAI(model="gpt-4o-mini")
 tools = [
     TonicTextualRedactText(),
     TonicTextualRedactFile(),
+    TonicTextualExtractEntities(),
     TonicTextualPiiTypes(),
 ]
 agent = create_react_agent(llm, tools)
@@ -202,17 +218,27 @@ agent = create_react_agent(llm, tools)
 
 With two environment variables set (`TONIC_TEXTUAL_API_KEY` and `OPENAI_API_KEY`), that's a working agent. Let's trace what happens with a few prompts.
 
+### Extracting entities
+
+**Prompt:** "What PII is in this text: My name is John Smith and my email is john@example.com"
+
+The agent calls `tonic_textual_extract_entities` with the text. Textual's NER model identifies every entity and returns a JSON array:
+
+```json
+[
+  {"label": "NAME_GIVEN", "text": "John", "start": 11, "end": 15, "score": 0.9},
+  {"label": "NAME_FAMILY", "text": "Smith", "start": 16, "end": 21, "score": 0.9},
+  {"label": "EMAIL_ADDRESS", "text": "john@example.com", "start": 38, "end": 54, "score": 0.9}
+]
+```
+
+The agent can now report exactly what was found, or use this information to decide what to do next — redact, synthesize, or flag for review.
+
 ### Redacting text
 
 **Prompt:** "Redact this: My name is John Smith and my email is john@example.com"
 
-The agent sees three tools. Based on the descriptions and the fact that the input is plain text, it calls `tonic_textual_redact` with:
-
-```json
-{"text": "My name is John Smith and my email is john@example.com"}
-```
-
-Textual's NER model identifies `John Smith` as `NAME_GIVEN` + `NAME_FAMILY` and `john@example.com` as `EMAIL_ADDRESS`. The tool returns:
+The agent calls `tonic_textual_redact` with the text. The tool returns:
 
 ```
 My name is [NAME_GIVEN_a1b2] [NAME_FAMILY_c3d4] and my email is [EMAIL_ADDRESS_e5f6].
@@ -309,13 +335,13 @@ The model detects 46 entity types out of the box:
 - **Temporal:** `DATE_TIME`
 - **Other:** `ORGANIZATION`, `OCCUPATION`, `IP_ADDRESS`, `NUMERIC_VALUE`, `NUMERIC_PII`, and more
 
-Each detection comes with a confidence score, and the API returns the full list of detected entities alongside the redacted text — so you can audit what was found and how it was handled.
+Each detection comes with a confidence score. The `TonicTextualExtractEntities` tool exposes these detections directly — returning every entity with its type, value, position, and confidence — so you can audit what was found, build custom logic on top of detections, or let an agent reason about the data before deciding how to handle it.
 
 For formats like JSON and HTML, Textual applies structural awareness. In JSON, it understands the difference between keys (which are typically not PII) and values (which often are). In HTML, it preserves the markup structure while redacting only the text content. This means `<a href="mailto:john@example.com">John Smith</a>` gets the email and name redacted while the `<a>` tag structure is preserved.
 
 ## What's Next
 
-This initial release covers the core redaction use cases — text, JSON, HTML, and binary files. We're continuing to expand format support and add new capabilities.
+This initial release covers PII transformation (synthesis and tokenization), entity extraction, and multi-format support (text, JSON, HTML, and binary files). We're continuing to expand format support and add new capabilities.
 
 The package is open source under the MIT license. You can find it at:
 
@@ -331,10 +357,15 @@ export TONIC_TEXTUAL_API_KEY="your-api-key"
 ```
 
 ```python
-from langchain_textual import TonicTextualRedactText
+from langchain_textual import TonicTextualRedactText, TonicTextualExtractEntities
 
+# Synthesize or tokenize PII
 tool = TonicTextualRedactText()
 tool.invoke("My name is John Smith and my email is john@example.com.")
+
+# Or extract entities without modifying the text
+extractor = TonicTextualExtractEntities()
+extractor.invoke("My name is John Smith and my email is john@example.com.")
 ```
 
 For the full Tonic Textual platform — including the web UI, dataset management, custom entity training, and enterprise deployment options — visit [tonic.ai/textual](https://tonic.ai/textual).
